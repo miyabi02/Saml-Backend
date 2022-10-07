@@ -5,7 +5,7 @@
  */
 
 var app = require('../app');
-var debug = require('debug')('Saml-Backend:server');
+var debug = require('debug')('saml-backend:server');
 var http = require('http');
 
 /**
