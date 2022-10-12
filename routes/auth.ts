@@ -65,12 +65,16 @@ router.get("/login", authModule, (req, res) => {
  */
 router.post("/login/callback", authModule, (req, res) => {
   console.log("/login/callback", req.user);
-  if ((req as any).session) {
-    res.redirect((req as any).session.requestUrl);
-    delete (req as any).session.requestUrl;
-  } else {
-    res.redirect("/");
-  }
+  // if ((req as any).session) {
+  //   res.redirect((req as any).session.requestUrl);
+  //   delete (req as any).session.requestUrl;
+  // } else {
+  //   res.redirect("/");
+  // }
+
+  // * 案1：Angular router & componetを用いて、ダイアログ(リダイレクト用)パスを作り、そこに向けてリダイレクトする。
+  // TODO: cookie or queryparamでセッション情報を設定する。
+  res.redirect("http://localhost:4200/callback/api/auth");
 });
 
 /**
@@ -97,6 +101,7 @@ const allowPaths = ["/stylesheets", "/images", "/javascript", "/favicon.ico"];
  *   ⇒認証されていない場合は、saml認証を行う
  */
 router.all(["/*"], (req, res, next) => {
+  // TODO: 認証済みケースの対処
   if (req.isAuthenticated()) {
     console.log(`Authenticated:${JSON.stringify(req.user)}`);
     return next();
