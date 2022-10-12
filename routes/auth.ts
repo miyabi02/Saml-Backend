@@ -72,9 +72,11 @@ router.post("/login/callback", authModule, (req, res) => {
   //   res.redirect("/");
   // }
 
+  console.log("sessionID", (req as any).sessionID);
+
   // * 案1：Angular router & componetを用いて、ダイアログ(リダイレクト用)パスを作り、そこに向けてリダイレクトする。
-  // TODO: cookie or queryparamでセッション情報を設定する。
-  res.redirect("http://localhost:4200/callback/api/auth");
+  // * queryparam方式で試す。
+  res.redirect(`http://localhost:4200/callback/api/auth?ssid=${(req as any).sessionID}&result=success`);
 });
 
 /**
@@ -101,7 +103,6 @@ const allowPaths = ["/stylesheets", "/images", "/javascript", "/favicon.ico"];
  *   ⇒認証されていない場合は、saml認証を行う
  */
 router.all(["/*"], (req, res, next) => {
-  // TODO: 認証済みケースの対処
   if (req.isAuthenticated()) {
     console.log(`Authenticated:${JSON.stringify(req.user)}`);
     return next();
@@ -117,10 +118,20 @@ router.all(["/*"], (req, res, next) => {
     return next();
   }
 
-  console.log(`${req.url} Not authenticated. Redirect to /login`);
+  console.log(`${req.url} Not authenticated. Redirect to Saml-idp`);
   // リクエストされたurlをセッションに保存してから、idpへ認証を依頼
-  (req as any).session.requestUrl = req.url;
+  // (req as any).session.requestUrl = req.url;
   return authModule(req, res, next);
+});
+
+/**
+ * 認証済ケース
+*/
+router.get("/api/auth", (req, res) => {
+  // 認証済はそのままコールバックURLにリダイレクト
+  if (req.isAuthenticated()) {
+    res.redirect(`http://localhost:4200/callback/api/auth?ssid=${(req as any).sessionID}&result=success`);
+  }
 });
 
 export default router;
