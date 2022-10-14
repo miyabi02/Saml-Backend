@@ -71,11 +71,12 @@ router.post("/login/callback", authModule, (req, res) => {
   // } else {
   //   res.redirect("/");
   // }
-
-  console.log("sessionID", (req as any).sessionID);
+  console.log("req.cookies", req.cookies);
 
   // * 案1：Angular router & componetを用いて、ダイアログ(リダイレクト用)パスを作り、そこに向けてリダイレクトする。
   // * queryparam方式で試す。
+  // ! seesionID と cookieにセットするセッションID `connect.sid`に差異あり。cookieに含まれる「.(ピリオド)以降の文字列」を取得する方法が不明。
+  // ! シリアライズした値だと想像している。
   res.redirect(`http://localhost:4200/callback/api/auth?ssid=${(req as any).sessionID}&result=success`);
 });
 
@@ -93,6 +94,15 @@ router.get("/login/fail", (req, res) => {
 router.get("/logout", (req, res) => {
   req.logout((_) => {});
   res.redirect("/");
+});
+
+/**
+ * ログアウト(API)
+ */
+router.post("/api/logout", (req, res) => {
+  console.log("req.cookies", req.cookies);
+  req.logout((_) => {});
+  res.json("{result: success");
 });
 
 const allowPaths = ["/stylesheets", "/images", "/javascript", "/favicon.ico"];
